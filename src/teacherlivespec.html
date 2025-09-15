@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Video Grid</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      color: #fff;
+    }
+
+    header {
+      text-align: center;
+      padding: 15px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-gap: 10px;
+      padding: 20px;
+      width: 95%;
+      max-width: 1200px;
+      flex: 1;
+      overflow: auto;
+    }
+
+    video, .placeholder {
+      width: 100%;
+      height: 150px;
+      background: #145a32;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid #2ecc71;
+      transition: 0.3s;
+    }
+
+    video:hover, .placeholder:hover {
+      transform: scale(1.05);
+      border-color: #1e8449;
+    }
+
+    .placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      color: #ecf0f1;
+    }
+
+    footer {
+      padding: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #2ecc71;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+
+    button:disabled {
+      background: #7dcea0;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <header>BCA-C-2025</header>
+
+  <div class="grid" id="videoGrid"></div>
+
+  <footer>
+    <button id="prevBtn" onclick="prevPage()">⬅ Previous</button>
+    <button id="nextBtn" onclick="nextPage()">Next ➡</button>
+  </footer>
+
+  <script>
+    const totalStudents = 90; // total number of students
+    const perPage = 30;
+    let currentPage = 0;
+
+    const grid = document.getElementById("videoGrid");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function renderPage() {
+      grid.innerHTML = "";
+      const start = currentPage * perPage;
+      const end = Math.min(start + perPage, totalStudents);
+
+      for (let i = start; i < end; i++) {
+        if (i === 0) {
+          // First student = your real webcam
+          const video = document.createElement("video");
+          video.autoplay = true;
+          video.muted = true;
+          video.playsInline = true;
+          grid.appendChild(video);
+
+          navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+              video.srcObject = stream;
+            })
+            .catch(err => {
+              console.error("Camera access denied", err);
+              video.classList.add("placeholder");
+              video.innerText = "Camera Blocked";
+            });
+        } else {
+          // Other students = placeholders
+          const div = document.createElement("div");
+          div.className = "placeholder";
+          div.innerText = "Student " + (i + 1);
+          grid.appendChild(div);
+        }
+      }
+
+      // disable/enable buttons
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = end >= totalStudents;
+    }
+
+    function nextPage() {
+      if ((currentPage + 1) * perPage < totalStudents) {
+        currentPage++;
+        renderPage();
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 0) {
+        currentPage--;
+        renderPage();
+      }
+    }
+
+    renderPage();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Fundamentals Class</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    --bg-main: linear-gradient(to bottom, #006400, #ffffff);
+    --text-main: #000;
+    background: var(--bg-main);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.5s, color 0.5s;
+  }
+  body.dark {
+    --bg-main: #000;
+    --text-main: #fff;
+    background: var(--bg-main);
+    color: var(--text-main);
+  }
+  h1 {
+    margin: 15px 0;
+    color: #004d00;
+  }
+  body.dark h1 { color: #fff; }
+
+  .main-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lecture-video {
+    width: 800px;
+    max-width: 95%;
+    border-radius: 15px;
+    border: 3px solid #006400;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  }
+  body.dark .lecture-video { border: 3px solid #fff; }
+
+  /* Camera preview */
+  .camera-preview {
+    position: absolute;
+    bottom: 70px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    border: 3px solid #006400;
+    border-radius: 12px;
+    background: #f0f0f0;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    display: none;
+  }
+  body.dark .camera-preview {
+    border: 3px solid #fff;
+    background: #222;
+  }
+
+  /* Buttons container */
+  .top-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+  }
+
+  .camera-toggle, .attendance-toggle, .theme-toggle {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .camera-toggle { background: #006400; }
+  .camera-toggle:hover { background: #008000; }
+  body.dark .camera-toggle { background: #444; }
+
+  .attendance-toggle { background: #006400; }
+  .attendance-toggle:hover { background: #008000; }
+  body.dark .attendance-toggle { background: #444; }
+
+  .theme-toggle { background: #006400; }
+  .theme-toggle:hover { background: #008000; }
+  body.dark .theme-toggle { background: #444; }
+
+  /* Doubts Panel */
+  .doubts-panel {
+    margin-top: 20px;
+    width: 90%;
+    max-width: 800px;
+    background: rgba(0,100,0,0.1);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  }
+  body.dark .doubts-panel { background: rgba(255,255,255,0.1); }
+
+  .tabs { display: flex; justify-content: space-around; margin-bottom: 10px; }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    background: #006400;
+    color: white;
+    border-radius: 8px;
+    margin: 0 5px;
+    transition: background 0.3s;
+  }
+  .tab:hover { background: #008000; }
+  .active-tab { background: #008000; color: #fff; }
+  body.dark .tab { background: #333; }
+  body.dark .active-tab { background: #555; }
+
+  .chat-box {
+    background: #f9f9f9;
+    height: 200px;
+    overflow-y: auto;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #006400;
+    color: #000;
+  }
+  body.dark .chat-box { background: #222; color: #fff; border: 2px solid #fff; }
+
+  .chat-message {
+    margin: 5px 0;
+    padding: 5px 10px;
+    background: #e6ffe6;
+    border-radius: 6px;
+    max-width: 70%;
+    border: 1px solid #006400;
+  }
+  body.dark .chat-message { background: #444; border: 1px solid #fff; color: #fff; }
+
+  .chat-input { display: flex; gap: 10px; }
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #006400;
+    outline: none;
+  }
+  .chat-input button {
+    padding: 10px 15px;
+    background: #006400;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+  }
+  .chat-input button:hover { background: #008000; }
+  body.dark .chat-input input { background: #222; color: #fff; border: 1px solid #fff; }
+  body.dark .chat-input button { background: #444; }
+
+  /* Floating Notes */
+  .notes-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 250px;
+    background: #fff;
+    color: #000;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    display: none;
+    flex-direction: column;
+  }
+  body.dark .notes-container { background: #222; color: #fff; }
+
+  .notes-header {
+    background: #006400;
+    padding: 8px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    cursor: move;
+  }
+  body.dark .notes-header { background: #444; }
+
+  .notes-body { padding: 10px; display: flex; flex-direction: column; }
+  .notes-body textarea {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #006400;
+    outline: none;
+    resize: none;
+    padding: 8px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+  body.dark .notes-body textarea { background: #333; color: #fff; border: 1px solid #fff; }
+
+  .toggle-notes {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #006400;
+    border: none;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  }
+  .toggle-notes:hover { background: #008000; }
+  body.dark .toggle-notes { background: #444; }
+
+  /* Students Popup */
+  .students-popup {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1000;
+    min-width: 200px;
+  }
+  body.dark .students-popup { background: #222; color: #fff; }
+  .students-popup h3 { margin-top:0; text-align:center; }
+  .student-btn { display:flex; align-items:center; margin:5px 0; gap:10px; cursor:pointer; }
+  .student-btn img { width:30px; height:30px; border-radius:50%; }
+</style>
+</head>
+<body>
+<h1>Computer Fundamentals</h1>
+
+<!-- Top Buttons -->
+<div class="top-buttons">
+  <button class="camera-toggle" id="cameraToggle">🎥 Camera On</button>
+  <button class="attendance-toggle" id="attendanceToggle">📋 Attendance Off</button>
+  <button class="theme-toggle" id="themeToggle">🌗 Mode</button>
+  <button class="student-list-btn">👥 Students</button>
+</div>
+
+<div class="main-container">
+  <video class="lecture-video" controls>
+    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+    Your browser does not support video.
+  </video>
+
+  <video id="cameraFeed" class="camera-preview" autoplay muted playsinline></video>
+</div>
+
+<!-- Students List Popup -->
+<div class="students-popup" id="studentsPopup">
+  <h3>Attending Students</h3>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=1"> Alan K</div>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=2"> Thomas</div>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=3"> Azim</div>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=4"> Ashwani</div>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=5"> Pranay</div>
+  <div class="student-btn"><img src="https://i.pravatar.cc/30?img=6"> Edrick</div>
+</div>
+
+<!-- Doubts Section -->
+<div class="doubts-panel">
+  <div class="tabs">
+    <div class="tab active-tab" id="publicTab">🌍 Public Doubts</div>
+    <div class="tab" id="privateTab">🔒 Private Doubts</div>
+  </div>
+
+  <div id="publicChat" class="chat-section">
+    <div class="chat-box" id="publicChatBox"></div>
+    <div class="chat-input">
+      <input type="text" id="publicInput" placeholder="Ask public doubt...">
+      <button onclick="sendMessage('public')">Send</button>
+    </div>
+  </div>
+
+  <div id="privateChat" class="chat-section" style="display: none;">
+    <div class="chat-box" id="privateChatBox"></div>
+    <div class="chat-input">
+      <input type="text" id="privateInput" placeholder="Ask private doubt...">
+      <button onclick="sendMessage('private')">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Notes -->
+<button class="toggle-notes" onclick="toggleNotes()">📝</button>
+<div class="notes-container" id="notesContainer">
+  <div class="notes-header">
+    Notes <span style="cursor:pointer;" onclick="toggleNotes()">✖</span>
+  </div>
+  <div class="notes-body">
+    <textarea id="notesArea" placeholder="Write your notes here..."></textarea>
+  </div>
+</div>
+
+<script>
+  // Camera
+  let stream = null;
+  const cameraFeed = document.getElementById("cameraFeed");
+  const cameraToggle = document.getElementById("cameraToggle");
+  async function toggleCamera() {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+      cameraFeed.style.display = "none";
+      cameraToggle.textContent = "🎥 Camera On";
+    } else {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        cameraFeed.srcObject = stream;
+        cameraFeed.style.display = "block";
+        cameraToggle.textContent = "❌ Camera Off";
+      } catch (error) { alert("Error accessing camera: " + error); }
+    }
+  }
+  cameraToggle.addEventListener("click", toggleCamera);
+
+  // Attendance toggle
+  const attendanceToggle = document.getElementById("attendanceToggle");
+  let attendanceActive = false;
+
+  attendanceToggle.addEventListener("click", () => {
+    attendanceActive = !attendanceActive;
+    attendanceToggle.textContent = attendanceActive ? "📋 Attendance On" : "📋 Attendance Off";
+    
+    if (attendanceActive) {
+      alert("✅ Attendance marking is now ACTIVE!");
+    } else {
+      alert("❌ Attendance marking stopped.");
+    }
+  });
+
+  // Theme toggle
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    themeToggle.textContent = document.body.classList.contains("dark") ? "🌞 Light Mode" : "🌗 Dark Mode";
+  });
+
+  // Chat
+  const publicTab = document.getElementById("publicTab");
+  const privateTab = document.getElementById("privateTab");
+  const publicChat = document.getElementById("publicChat");
+  const privateChat = document.getElementById("privateChat");
+  publicTab.addEventListener("click", () => switchTab("public"));
+  privateTab.addEventListener("click", () => switchTab("private"));
+  function switchTab(tab) {
+    if (tab==="public") {
+      publicChat.style.display="block";
+      privateChat.style.display="none";
+      publicTab.classList.add("active-tab");
+      privateTab.classList.remove("active-tab");
+    } else {
+      publicChat.style.display="none";
+      privateChat.style.display="block";
+      privateTab.classList.add("active-tab");
+      publicTab.classList.remove("active-tab");
+    }
+  }
+  function sendMessage(type) {
+    let input, box;
+    if (type==="public") { input=document.getElementById("publicInput"); box=document.getElementById("publicChatBox"); }
+    else { input=document.getElementById("privateInput"); box=document.getElementById("privateChatBox"); }
+    if (input.value.trim()!=="") {
+      const msg = document.createElement("div");
+      msg.classList.add("chat-message");
+      msg.innerText = input.value;
+      box.appendChild(msg);
+      input.value = "";
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+
+  // Notes
+  function toggleNotes() {
+    const notes = document.getElementById("notesContainer");
+    notes.style.display = notes.style.display === "flex" ? "none" : "flex";
+  }
+
+  // Students Popup
+  const studentListBtn = document.querySelector(".student-list-btn");
+  const studentsPopup = document.getElementById("studentsPopup");
+  studentListBtn.addEventListener("click", () => {
+    studentsPopup.style.display = studentsPopup.style.display==="block" ? "none" : "block";
+  });
+</script>
+</body>
+</html>
